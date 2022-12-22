@@ -25,24 +25,24 @@ namespace ClassificationDemo
             var host = MefHostServices.Create(MefHostServices.DefaultAssemblies);
             var workspace = new AdhocWorkspace(host);
 
-            var souceText = SourceText.From(code);
+            var sourceText = SourceText.From(code);
 
             // with a project
             var projectInfo = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "MyProject", "MyProject", LanguageNames.CSharp).
                 WithMetadataReferences(new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location) });
             var project = workspace.AddProject(projectInfo);
-            var document = workspace.AddDocument(project.Id, "MyFile.cs", souceText);
+            var document = workspace.AddDocument(project.Id, "MyFile.cs", sourceText);
 
             var classifiedSpans = await Classifier.GetClassifiedSpansAsync(document, new TextSpan(0, code.Length));
 
             foreach (var classifiedSpan in classifiedSpans.Where(s => !ClassificationTypeNames.AdditiveTypeNames.Contains(s.ClassificationType)))
             {
-                var position = souceText.Lines.GetLinePositionSpan(classifiedSpan.TextSpan);
-                Console.WriteLine($"{souceText.ToString(classifiedSpan.TextSpan)} - {classifiedSpan.ClassificationType} - {position.Start}:{position.End}");
+                var position = sourceText.Lines.GetLinePositionSpan(classifiedSpan.TextSpan);
+                Console.WriteLine($"{sourceText.ToString(classifiedSpan.TextSpan)} - {classifiedSpan.ClassificationType} - {position.Start}:{position.End}");
             }
 
             // with semantic model
-            var syntaxTree = CSharpSyntaxTree.ParseText(souceText);
+            var syntaxTree = CSharpSyntaxTree.ParseText(sourceText);
             var compilation = CSharpCompilation.Create("Dummy").AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location)).AddSyntaxTrees(syntaxTree);
             var semanticModel = compilation.GetSemanticModel(syntaxTree);
 
@@ -50,8 +50,8 @@ namespace ClassificationDemo
 
             foreach (var classifiedSpan in classifiedSpans.Where(s => !ClassificationTypeNames.AdditiveTypeNames.Contains(s.ClassificationType)))
                 {
-                var position = souceText.Lines.GetLinePositionSpan(classifiedSpan.TextSpan);
-                Console.WriteLine($"{souceText.ToString(classifiedSpan.TextSpan)} - {classifiedSpan.ClassificationType} - {position.Start}:{position.End}");
+                var position = sourceText.Lines.GetLinePositionSpan(classifiedSpan.TextSpan);
+                Console.WriteLine($"{sourceText.ToString(classifiedSpan.TextSpan)} - {classifiedSpan.ClassificationType} - {position.Start}:{position.End}");
             }
 
             Console.ReadLine();
